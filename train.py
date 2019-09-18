@@ -3,15 +3,30 @@ import argparse
 import random
 import numpy as np
 from PIL import Image
+from keras.utils import to_categorical
 
 def pil_loader(path):
-    # Return the RGB variant of the input image
+    # Return the RGB variant of input image
     with open(path, 'rb') as f:
         with Image.open(f) as img:
             return img.convert('RGB')
+
+def one_hot_encoding(param):
+    # Read the source and target data from param
+    s_data, s_label = param["source_data"], param["source_label"]
+    t_data, t_label = param["target_data"], param["target_label"]
+
+    # Encode the labels into one-hot format
+    classes = (np.concatenate((s_label, t_label),axis=0))
+    num_classes = np.max(classes)
+    if 0 in classes:
+    	num_classes = num_classes+1
+    s_label = to_categorical(s_label, num_classes=num_classes)
+    t_label = to_categorical(t_label, num_classes=num_classes)
+    return s_label, t_label
             
 def data_loader(filepath, inp_dims):
-    # Load images and corresponding labels from the text file and save them in a numpy array
+    # Load images and corresponding labels from the text file, stack them in numpy arrays and return
     if not os.path.isfile(filepath):
         print("File path {} does not exist. Exiting...".format(filepath))
         sys.exit() 
@@ -21,8 +36,8 @@ def data_loader(filepath, inp_dims):
         for line in fp:
             token = line.split()
             i = pil_loader(token[0])
-            i = i.resize((inp_dims[0],inp_dims[1]), Image.ANTIALIAS)
-            img.append(i)
+            i = i.resize((inp_dims[0], inp_dims[1]), Image.ANTIALIAS)
+            img.append(np.array(i))
             label.append(int(token[1]))
     img = np.array(img)
     label = np.array(label)
@@ -31,16 +46,15 @@ def data_loader(filepath, inp_dims):
 def train(param):
 
 
-
 if __name__ == "__main__":
 
-	# Reading parameter values from the console
+    # Read parameter values from the console
     parser = argparse.ArgumentParser(description='Domain Adaptation')
     parser.add_argument('--gpu_id', type=str, nargs='?', default='0', help="GPU id to run")
     parser.add_argument('--network_name', type=str, default='ResNet50', help="Name of the feature extractor network; ResNet18,34,50,101,152; AlexNet")
     parser.add_argument('--dataset_name', type=str, default='office', help="Name of the source dataset")
-    parser.add_argument('--source_path', type=str, default='data/office/amazon_10_list.txt', help="Path to source dataset")
-    parser.add_argument('--target_path', type=str, default='data/office/webcam_10_list.txt', help="Path to target dataset")
+    parser.add_argument('--source_path', type=str, default='Data/Office/amazon_10_list.txt', help="Path to source dataset")
+    parser.add_argument('--target_path', type=str, default='Data/Office/webcam_10_list.txt', help="Path to target dataset")
     parser.add_argument('--test_interval', type=int, default=500, help="Gap between two successive test phases")
     parser.add_argument('--snapshot_interval', type=int, default=5000, help="Gap between saving output models")
     parser.add_argument('--output_dir', type=str, default='models', help="Directory for saving output model")
@@ -67,11 +81,14 @@ if __name__ == "__main__":
     if not os.path.exists(param["output_path"]):
         os.mkdir(param["output_path"])
 
-    # Load source and larget data
-    param["s_data"], param["s_label"] = data_loader(param["source_path"], param["inp_dims"])
-    param["t_data"], param["t_label"] = data_loader(param["target_path"], param["inp_dims"])
+    # Load source and target data
+    param["source_data"], param["source_label"] = data_loader(param["source_path"], param["inp_dims"])
+    param["target_data"], param["target_label"] = data_loader(param["target_path"], param["inp_dims"])
 
-    #train data
+    # Encode labels into one-hot format
+    param["source_label"], param["target_label"] = one_hot_encoding(param)
+
+    # Train data
     train(param)
 
 
