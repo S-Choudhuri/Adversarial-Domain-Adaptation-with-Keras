@@ -44,10 +44,9 @@ def data_loader(filepath, inp_dims):
     return img, label
 
 def train(param):
-
+	print("Hi")
 
 if __name__ == "__main__":
-
     # Read parameter values from the console
     parser = argparse.ArgumentParser(description='Domain Adaptation')
     parser.add_argument('--gpu_id', type=str, nargs='?', default='0', help="GPU id to run")
