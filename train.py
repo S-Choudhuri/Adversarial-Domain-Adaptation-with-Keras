@@ -5,15 +5,13 @@ import numpy as np
 from PIL import Image
 
 def pil_loader(path):
-
-	# Return the RGB variant of the input image
+    # Return the RGB variant of the input image
     with open(path, 'rb') as f:
         with Image.open(f) as img:
             return img.convert('RGB')
             
 def data_loader(filepath, inp_dims):
-
-	# Load images and corresponding labels from the text file and save them in a numpy array
+    # Load images and corresponding labels from the text file and save them in a numpy array
     if not os.path.isfile(filepath):
         print("File path {} does not exist. Exiting...".format(filepath))
         sys.exit() 
@@ -31,7 +29,7 @@ def data_loader(filepath, inp_dims):
     return img, label
 
 def train(param):
-	
+
 
 
 if __name__ == "__main__":
