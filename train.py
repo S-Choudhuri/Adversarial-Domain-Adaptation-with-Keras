@@ -4,6 +4,10 @@ import random
 import numpy as np
 from PIL import Image
 from keras.utils import to_categorical
+from keras.layers import Input
+from keras.optimizers import Adam
+import model
+import loss
 
 def pil_loader(path):
     # Return the RGB variant of input image
@@ -12,15 +16,15 @@ def pil_loader(path):
             return img.convert('RGB')
 
 def one_hot_encoding(param):
-    # Read the source and target data from param
-    s_data, s_label = param["source_data"], param["source_label"]
-    t_data, t_label = param["target_data"], param["target_label"]
+    # Read the source and target labels from param
+    s_label = param["source_label"]
+    t_label = param["target_label"]
 
     # Encode the labels into one-hot format
     classes = (np.concatenate((s_label, t_label),axis=0))
     num_classes = np.max(classes)
     if 0 in classes:
-    	num_classes = num_classes+1
+            num_classes = num_classes+1
     s_label = to_categorical(s_label, num_classes=num_classes)
     t_label = to_categorical(t_label, num_classes=num_classes)
     return s_label, t_label
@@ -44,7 +48,23 @@ def data_loader(filepath, inp_dims):
     return img, label
 
 def train(param):
-	print("Hi")
+    models = {}
+    inp = Input(shape=(param["inp_dims"]))
+    embedding = model.build_embedding(inp)
+    classifier = model.build_classifier(param, embedding)
+    discriminator = model.build_discriminator(embedding)
+
+    models["combined_classifier"] = model.build_combined_classifier(inp, classifier)
+    models["combined_classifier"].compile(optimizer="Adam",loss='categorical_crossentropy', metrics=['accuracy'])
+
+    models["combined_discriminator"] = model.build_combined_discriminator(inp, discriminator)
+    models["combined_discriminator"].compile(optimizer="Adam",loss='binary_crossentropy', metrics=['accuracy'])
+
+    models["combined_model"] = model.build_combined_model(inp, [classifier, discriminator])
+    models["combined_model"].compile(optimizer="Adam",loss={'c_dense2': 'categorical_crossentropy', 'd_dense2': \
+    	               'binary_crossentropy'}, loss_weights={'c_dense2': 1, 'd_dense2': 2}, metrics=['accuracy'])
+    
+
 
 if __name__ == "__main__":
     # Read parameter values from the console
