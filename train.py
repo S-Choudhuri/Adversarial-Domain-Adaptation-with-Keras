@@ -1,11 +1,9 @@
+SEED = 42
 import os
 import sys
 import argparse
 import random
 import numpy as np
-
-SEED = 42
-
 from tensorflow import set_random_seed
 
 os.environ['PYTHONHASHSEED']=str(SEED)
@@ -83,12 +81,9 @@ def train(param):
         models["combined_classifier"] = model.build_combined_classifier(inp, classifier)
         models["combined_discriminator"] = model.build_combined_discriminator(inp, discriminator)
         models["combined_model"] = model.build_combined_model(inp, [classifier, discriminator])
+
     models["combined_classifier"].compile(optimizer=Adam(lr=param["lr"]),loss='categorical_crossentropy', metrics=['accuracy'])
-
-    
     models["combined_discriminator"].compile(optimizer=Adam(lr=param["lr"]),loss='binary_crossentropy', metrics=['accuracy'])
-
-    
     models["combined_model"].compile(optimizer=Adam(lr=param["lr"]),loss={'c_dense2': 'categorical_crossentropy', 'd_dense2': \
                        'binary_crossentropy'}, loss_weights={'c_dense2': 1, 'd_dense2': 2}, metrics=['accuracy'])
 
@@ -146,6 +141,7 @@ def train(param):
             if param["target_accuracy"] < target_accuracy:              
                 #model["optimal"] = models["combined_model"]
                 param["output_file"].write(log_str)
+                models["combined_model"].save(os.path.join(param["output_path"],"iter_{:05d}_model.h5".format(i)))
                 #param["output_file"].flush()
 
         #if i % param["snapshot_interval"] == 0:
@@ -155,7 +151,6 @@ def train(param):
 if __name__ == "__main__":
     # Read parameter values from the console
     parser = argparse.ArgumentParser(description='Domain Adaptation')
-    parser.add_argument('--gpu_id', type=str, nargs='?', default='0', help="GPU id to run")
     parser.add_argument('--number_of_gpus', type=int, nargs='?', default='1', help="Number of gpus to run")
     parser.add_argument('--network_name', type=str, default='ResNet50', help="Name of the feature extractor network; ResNet18,34,50,101,152; AlexNet")
     parser.add_argument('--dataset_name', type=str, default='office', help="Name of the source dataset")
@@ -163,19 +158,20 @@ if __name__ == "__main__":
     parser.add_argument('--target_path', type=str, default='Data/Office/webcam_10_list.txt', help="Path to target dataset")
     parser.add_argument('--learning_rate', type=int, default=0.0001, help="Learning rate")
     parser.add_argument('--batch_size', type=int, default=16, help="Batch size for training")
-    parser.add_argument('--test_interval', type=int, default=2, help="Gap between two successive test phases")
+    parser.add_argument('--test_interval', type=int, default=3, help="Gap between two successive test phases")
+    parser.add_argument('--num_iterations', type=int, default=1000, help="Number of iterations")
     parser.add_argument('--snapshot_interval', type=int, default=100, help="Gap between saving output models")
     parser.add_argument('--output_dir', type=str, default='models', help="Directory for saving output model")
     args = parser.parse_args()
 
     # Set GPU device
-    #os.environ["CUDA_VISIBLE_DEVICES"] = args.gpu_id
+    os.environ["CUDA_VISIBLE_DEVICES"] = str(list(np.arange(args.number_of_gpus))).strip('[]')
 
     # Initialize parameters
     param = {}
     param["number_of_gpus"] = args.number_of_gpus
     param["inp_dims"] = [224, 224, 3]
-    param["num_iterations"] = 200
+    param["num_iterations"] = args.num_iterations
     param["lr"] = args.learning_rate
     param["batch_size"] = args.batch_size
     param["test_interval"] = args.test_interval
