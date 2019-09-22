@@ -69,9 +69,9 @@ def batch_generator(data, batch_size):
 def train(param):
     models = {}
     inp = Input(shape=(param["inp_dims"]))
-    embedding = model.build_embedding(inp)
+    embedding = model.build_embedding(param, inp)
     classifier = model.build_classifier(param, embedding)
-    discriminator = model.build_discriminator(embedding)
+    discriminator = model.build_discriminator(param, embedding)
 
     if param["number_of_gpus"] > 1:
         models["combined_classifier"] = multi_gpu_model(model.build_combined_classifier(inp, classifier),gpus=param["number_of_gpus"])
@@ -82,10 +82,10 @@ def train(param):
         models["combined_discriminator"] = model.build_combined_discriminator(inp, discriminator)
         models["combined_model"] = model.build_combined_model(inp, [classifier, discriminator])
 
-    models["combined_classifier"].compile(optimizer=Adam(lr=param["lr"]),loss='categorical_crossentropy', metrics=['accuracy'])
-    models["combined_discriminator"].compile(optimizer=Adam(lr=param["lr"]),loss='binary_crossentropy', metrics=['accuracy'])
-    models["combined_model"].compile(optimizer=Adam(lr=param["lr"]),loss={'c_dense2': 'categorical_crossentropy', 'd_dense2': \
-                       'binary_crossentropy'}, loss_weights={'c_dense2': 1, 'd_dense2': 2}, metrics=['accuracy'])
+    models["combined_classifier"].compile(optimizer=Adam(lr=param["lr_classifier"]),loss='categorical_crossentropy', metrics=['accuracy'])
+    models["combined_discriminator"].compile(optimizer=Adam(lr=param["lr_discriminator"]),loss='binary_crossentropy', metrics=['accuracy'])
+    models["combined_model"].compile(optimizer=Adam(lr=param["lr_combined"]),loss={'c_act_last': 'categorical_crossentropy', 'd_act_last': \
+                       'binary_crossentropy'}, loss_weights={'c_act_last': 1, 'd_act_last': 2}, metrics=['accuracy'])
 
     Xs, ys = param["source_data"], param["source_label"]
     Xt, yt = param["target_data"], param["target_label"]
@@ -106,27 +106,27 @@ def train(param):
         y_class = np.concatenate([y0, np.zeros_like(y0)])
         adv_weights = []
         for layer in models["combined_model"].layers:
-            if (layer.name.startswith("d_dense2")):
+            if (layer.name.startswith("d_act_last")):
                 adv_weights.append(layer.get_weights())
           
         stats = models["combined_model"].train_on_batch(X_adv, [y_class, y_adversarial_1],\
                                 sample_weight=[sample_weights_class, sample_weights_adversarial])            
         k = 0
         for layer in models["combined_model"].layers:
-            if (layer.name.startswith("d_dense2")):                    
+            if (layer.name.startswith("d_act_last")):                    
                 layer.set_weights(adv_weights[k])
                 k += 1
 
         class_weights = []        
         for layer in models["combined_model"].layers:
-            if (not layer.name.startswith("d_dense2")):
+            if (not layer.name.startswith("d_act_last")):
                 class_weights.append(layer.get_weights())  
 
         stats2 = models["combined_discriminator"].train_on_batch(X_adv, [y_adversarial_2])
 
         k = 0
         for layer in models["combined_model"].layers:
-            if (not layer.name.startswith("d_dense2")):
+            if (not layer.name.startswith("d_act_last")):
                 layer.set_weights(class_weights[k])
                 k += 1
 
@@ -139,10 +139,8 @@ def train(param):
             log_str = "iter: {:05d}, source_accuracy: {:.5f}, target_accuracy: {:.5f}".format(i, source_accuracy*100, target_accuracy*100)
             print(log_str)
             if param["target_accuracy"] < target_accuracy:              
-                #model["optimal"] = models["combined_model"]
                 param["output_file"].write(log_str)
                 models["combined_model"].save(os.path.join(param["output_path"],"iter_{:05d}_model.h5".format(i)))
-                #param["output_file"].flush()
 
         #if i % param["snapshot_interval"] == 0:
             #model["optimal"].save(os.path.join(param["output_path"],"iter_{:05d}_model.h5".format(i)))
@@ -150,18 +148,22 @@ def train(param):
 
 if __name__ == "__main__":
     # Read parameter values from the console
-    parser = argparse.ArgumentParser(description='Domain Adaptation')
-    parser.add_argument('--number_of_gpus', type=int, nargs='?', default='1', help="Number of gpus to run")
-    parser.add_argument('--network_name', type=str, default='ResNet50', help="Name of the feature extractor network; ResNet18,34,50,101,152; AlexNet")
-    parser.add_argument('--dataset_name', type=str, default='office', help="Name of the source dataset")
-    parser.add_argument('--source_path', type=str, default='Data/Office/amazon_31_list.txt', help="Path to source dataset")
-    parser.add_argument('--target_path', type=str, default='Data/Office/webcam_10_list.txt', help="Path to target dataset")
-    parser.add_argument('--learning_rate', type=int, default=0.0001, help="Learning rate")
-    parser.add_argument('--batch_size', type=int, default=16, help="Batch size for training")
-    parser.add_argument('--test_interval', type=int, default=3, help="Gap between two successive test phases")
-    parser.add_argument('--num_iterations', type=int, default=1000, help="Number of iterations")
-    parser.add_argument('--snapshot_interval', type=int, default=100, help="Gap between saving output models")
-    parser.add_argument('--output_dir', type=str, default='models', help="Directory for saving output model")
+    parser = argparse.ArgumentParser(description = 'Domain Adaptation')
+    parser.add_argument('--number_of_gpus', type = int, nargs = '?', default = '1', help = "Number of gpus to run")
+    parser.add_argument('--network_name', type = str, default = 'ResNet50', help = "Name of the feature extractor network")
+    parser.add_argument('--dataset_name', type = str, default = 'Office', help = "Name of the source dataset")
+    parser.add_argument('--dropout_classifier', type = int, default = 0.25, help = "Dropout ratio for classifier")
+    parser.add_argument('--dropout_discriminator', type = int, default = 0.25, help = "Dropout ratio for discriminator")    
+    parser.add_argument('--source_path', type = str, default = 'amazon_31_list.txt', help = "Path to source dataset")
+    parser.add_argument('--target_path', type = str, default = 'webcam_10_list.txt', help = "Path to target dataset")
+    parser.add_argument('--lr_classifier', type = int, default = 0.0001, help = "Learning rate for classifier model")
+    parser.add_argument('--lr_discriminator', type = int, default = 0.0001, help = "Learning rate for discriminator model")
+    parser.add_argument('--lr_combined', type = int, default = 0.00001, help = "Learning rate for combined model")
+    parser.add_argument('--batch_size', type = int, default = 16, help = "Batch size for training")
+    parser.add_argument('--test_interval', type = int, default = 3, help = "Gap between two successive test phases")
+    parser.add_argument('--num_iterations', type = int, default = 1000, help = "Number of iterations")
+    parser.add_argument('--snapshot_interval', type = int, default = 100, help = "Gap between saving output models")
+    parser.add_argument('--output_dir', type = str, default = 'models', help = "Directory for saving output model")
     args = parser.parse_args()
 
     # Set GPU device
@@ -170,13 +172,18 @@ if __name__ == "__main__":
     # Initialize parameters
     param = {}
     param["number_of_gpus"] = args.number_of_gpus
+    param["network_name"] = args.network_name
     param["inp_dims"] = [224, 224, 3]
     param["num_iterations"] = args.num_iterations
-    param["lr"] = args.learning_rate
+    param["lr_classifier"] = args.lr_classifier
+    param["lr_discriminator"] = args.lr_discriminator
+    param["lr_combined"] = args.lr_combined
     param["batch_size"] = args.batch_size
+    param["drop_classifier"] = args.dropout_classifier
+    param["drop_discriminator"] = args.dropout_discriminator
     param["test_interval"] = args.test_interval
-    param["source_path"] = args.source_path
-    param["target_path"] = args.target_path
+    param["source_path"] = os.path.join("Data", args.dataset_name, args.source_path)
+    param["target_path"] = os.path.join("Data", args.dataset_name, args.target_path)
     param["snapshot_interval"] = args.snapshot_interval
     param["output_for_test"] = True
     param["output_path"] = "snapshot/" + args.output_dir
