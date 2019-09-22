@@ -1,4 +1,4 @@
-SEED = 42
+SEED = 7
 import os
 import sys
 import argparse
@@ -85,7 +85,7 @@ def train(param):
     models["combined_classifier"].compile(optimizer = Adam(lr = param["lr_classifier"]), loss = 'categorical_crossentropy', metrics = ['accuracy'])
     models["combined_discriminator"].compile(optimizer = Adam(lr = param["lr_discriminator"]),loss = 'binary_crossentropy', metrics = ['accuracy'])
     models["combined_model"].compile(optimizer = Adam(lr = param["lr_combined"]),loss = {'c_act_last': 'categorical_crossentropy', 'd_act_last': \
-                       'binary_crossentropy'}, loss_weights = {'c_act_last': 1, 'd_act_last': 2}, metrics = ['accuracy'])
+                       'binary_crossentropy'}, loss_weights = {'c_act_last': param["c_loss_weight"], 'd_act_last': param["d_loss_weight"]}, metrics = ['accuracy'])
 
     Xs, ys = param["source_data"], param["source_label"]
     Xt, yt = param["target_data"], param["target_label"]
@@ -134,7 +134,8 @@ def train(param):
             y_test_hat_t = models["combined_classifier"].predict(Xt)
             y_test_hat_s = models["combined_classifier"].predict(Xs)
 
-            source_accuracy = accuracy_score(ys.argmax(1), y_test_hat_s.argmax(1)\
+            source_accuracy = accuracy_score(ys.argmax(1), y_test_hat_s.argmax(1))  
+            
             target_accuracy = accuracy_score(yt.argmax(1), y_test_hat_t.argmax(1))
             log_str = "iter: {:05d}, source_accuracy: {:.5f}, target_accuracy: {:.5f}".format(i, source_accuracy*100, target_accuracy*100)
             print(log_str)
@@ -159,6 +160,8 @@ if __name__ == "__main__":
     parser.add_argument('--lr_classifier', type = int, default = 0.0001, help = "Learning rate for classifier model")
     parser.add_argument('--lr_discriminator', type = int, default = 0.0001, help = "Learning rate for discriminator model")
     parser.add_argument('--lr_combined', type = int, default = 0.00001, help = "Learning rate for combined model")
+    parser.add_argument('--classifier_loss_weight', type = int, default = 1, help = "classifier loss weight")
+    parser.add_argument('--discriminator_loss_weight', type = int, default = 2, help = "Discriminator loss weight")
     parser.add_argument('--batch_size', type = int, default = 16, help = "Batch size for training")
     parser.add_argument('--test_interval', type = int, default = 3, help = "Gap between two successive test phases")
     parser.add_argument('--num_iterations', type = int, default = 1000, help = "Number of iterations")
@@ -179,13 +182,14 @@ if __name__ == "__main__":
     param["lr_discriminator"] = args.lr_discriminator
     param["lr_combined"] = args.lr_combined
     param["batch_size"] = args.batch_size
+    param["c_loss_weight"] = args.classifier_loss_weight
+    param["d_loss_weight"] = args.discriminator_loss_weight    
     param["drop_classifier"] = args.dropout_classifier
     param["drop_discriminator"] = args.dropout_discriminator
     param["test_interval"] = args.test_interval
     param["source_path"] = os.path.join("Data", args.dataset_name, args.source_path)
     param["target_path"] = os.path.join("Data", args.dataset_name, args.target_path)
     param["snapshot_interval"] = args.snapshot_interval
-    param["output_for_test"] = True
     param["output_path"] = "snapshot/" + args.output_dir
 
     # Create directory for saving models and log files
