@@ -32,12 +32,12 @@ def one_hot_encoding(param):
     t_label = param["target_label"]
 
     # Encode the labels into one-hot format
-    classes = (np.concatenate((s_label, t_label),axis=0))
+    classes = (np.concatenate((s_label, t_label), axis = 0))
     num_classes = np.max(classes)
     if 0 in classes:
             num_classes = num_classes+1
-    s_label = to_categorical(s_label, num_classes=num_classes)
-    t_label = to_categorical(t_label, num_classes=num_classes)
+    s_label = to_categorical(s_label, num_classes = num_classes)
+    t_label = to_categorical(t_label, num_classes = num_classes)
     return s_label, t_label
             
 def data_loader(filepath, inp_dims):
@@ -62,30 +62,30 @@ def batch_generator(data, batch_size):
     #Generate batches of data.
     all_examples_indices = len(data[0])
     while True:
-        mini_batch_indices = np.random.choice(all_examples_indices, size=batch_size, replace=False)
+        mini_batch_indices = np.random.choice(all_examples_indices, size = batch_size, replace = False)
         tbr = [k[mini_batch_indices] for k in data]
         yield tbr
 
 def train(param):
     models = {}
-    inp = Input(shape=(param["inp_dims"]))
+    inp = Input(shape = (param["inp_dims"]))
     embedding = model.build_embedding(param, inp)
     classifier = model.build_classifier(param, embedding)
     discriminator = model.build_discriminator(param, embedding)
 
     if param["number_of_gpus"] > 1:
-        models["combined_classifier"] = multi_gpu_model(model.build_combined_classifier(inp, classifier),gpus=param["number_of_gpus"])
-        models["combined_discriminator"] = multi_gpu_model(model.build_combined_discriminator(inp, discriminator),gpus=param["number_of_gpus"])
-        models["combined_model"] = multi_gpu_model(model.build_combined_model(inp, [classifier, discriminator]),gpus=param["number_of_gpus"])
+        models["combined_classifier"] = multi_gpu_model(model.build_combined_classifier(inp, classifier), gpus = param["number_of_gpus"])
+        models["combined_discriminator"] = multi_gpu_model(model.build_combined_discriminator(inp, discriminator), gpus = param["number_of_gpus"])
+        models["combined_model"] = multi_gpu_model(model.build_combined_model(inp, [classifier, discriminator]), gpus = param["number_of_gpus"])
     else:
         models["combined_classifier"] = model.build_combined_classifier(inp, classifier)
         models["combined_discriminator"] = model.build_combined_discriminator(inp, discriminator)
         models["combined_model"] = model.build_combined_model(inp, [classifier, discriminator])
 
-    models["combined_classifier"].compile(optimizer=Adam(lr=param["lr_classifier"]),loss='categorical_crossentropy', metrics=['accuracy'])
-    models["combined_discriminator"].compile(optimizer=Adam(lr=param["lr_discriminator"]),loss='binary_crossentropy', metrics=['accuracy'])
-    models["combined_model"].compile(optimizer=Adam(lr=param["lr_combined"]),loss={'c_act_last': 'categorical_crossentropy', 'd_act_last': \
-                       'binary_crossentropy'}, loss_weights={'c_act_last': 1, 'd_act_last': 2}, metrics=['accuracy'])
+    models["combined_classifier"].compile(optimizer = Adam(lr = param["lr_classifier"]), loss = 'categorical_crossentropy', metrics = ['accuracy'])
+    models["combined_discriminator"].compile(optimizer = Adam(lr = param["lr_discriminator"]),loss = 'binary_crossentropy', metrics = ['accuracy'])
+    models["combined_model"].compile(optimizer = Adam(lr = param["lr_combined"]),loss = {'c_act_last': 'categorical_crossentropy', 'd_act_last': \
+                       'binary_crossentropy'}, loss_weights = {'c_act_last': 1, 'd_act_last': 2}, metrics = ['accuracy'])
 
     Xs, ys = param["source_data"], param["source_label"]
     Xt, yt = param["target_data"], param["target_label"]
@@ -134,7 +134,7 @@ def train(param):
             y_test_hat_t = models["combined_classifier"].predict(Xt)
             y_test_hat_s = models["combined_classifier"].predict(Xs)
 
-            source_accuracy = accuracy_score(ys.argmax(1), y_test_hat_s.argmax(1))
+            source_accuracy = accuracy_score(ys.argmax(1), y_test_hat_s.argmax(1)\
             target_accuracy = accuracy_score(yt.argmax(1), y_test_hat_t.argmax(1))
             log_str = "iter: {:05d}, source_accuracy: {:.5f}, target_accuracy: {:.5f}".format(i, source_accuracy*100, target_accuracy*100)
             print(log_str)
