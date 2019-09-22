@@ -134,7 +134,7 @@ def train(param):
             y_test_hat_t = models["combined_classifier"].predict(Xt)
             y_test_hat_s = models["combined_classifier"].predict(Xs)
 
-            source_accuracy = accuracy_score(ys.argmax(1), y_test_hat_s.argmax(1)\
+            source_accuracy = accuracy_score(ys.argmax(1), y_test_hat_s.argmax(1))
             target_accuracy = accuracy_score(yt.argmax(1), y_test_hat_t.argmax(1))
             log_str = "iter: {:05d}, source_accuracy: {:.5f}, target_accuracy: {:.5f}".format(i, source_accuracy*100, target_accuracy*100)
             print(log_str)
