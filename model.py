@@ -7,10 +7,10 @@ from keras.layers import BatchNormalization, Activation, Dropout
 
 def build_embedding(param, inp):
     network = eval(param["network_name"])
-    feat = network(weights = 'imagenet', include_top = False)
-    pool2 = feat(inp)
-    pool2 = Flatten()(pool2)
-    return pool2
+    base = network(weights = 'imagenet', include_top = False)
+    feat = base(inp)
+    flat = Flatten()(feat)
+    return flat
 
 def build_classifier(param, embedding):
     dense1 = Dense(400, name = 'c_dense1')(embedding)
