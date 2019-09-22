@@ -1,11 +1,23 @@
 import os
+import sys
 import argparse
 import random
 import numpy as np
+
+SEED = 42
+
+from tensorflow import set_random_seed
+
+os.environ['PYTHONHASHSEED']=str(SEED)
+np.random.seed(SEED)
+set_random_seed(SEED)
+random.seed(SEED)
+
 from PIL import Image
 from keras.utils import to_categorical
 from keras.layers import Input
 from keras.optimizers import Adam
+from keras.utils import multi_gpu_model
 from sklearn.metrics import accuracy_score
 import model
 import loss
@@ -63,14 +75,21 @@ def train(param):
     classifier = model.build_classifier(param, embedding)
     discriminator = model.build_discriminator(embedding)
 
-    models["combined_classifier"] = model.build_combined_classifier(inp, classifier)
-    models["combined_classifier"].compile(optimizer="Adam",loss='categorical_crossentropy', metrics=['accuracy'])
+    if param["number_of_gpus"] > 1:
+        models["combined_classifier"] = multi_gpu_model(model.build_combined_classifier(inp, classifier),gpus=param["number_of_gpus"])
+        models["combined_discriminator"] = multi_gpu_model(model.build_combined_discriminator(inp, discriminator),gpus=param["number_of_gpus"])
+        models["combined_model"] = multi_gpu_model(model.build_combined_model(inp, [classifier, discriminator]),gpus=param["number_of_gpus"])
+    else:
+        models["combined_classifier"] = model.build_combined_classifier(inp, classifier)
+        models["combined_discriminator"] = model.build_combined_discriminator(inp, discriminator)
+        models["combined_model"] = model.build_combined_model(inp, [classifier, discriminator])
+    models["combined_classifier"].compile(optimizer=Adam(lr=param["lr"]),loss='categorical_crossentropy', metrics=['accuracy'])
 
-    models["combined_discriminator"] = model.build_combined_discriminator(inp, discriminator)
-    models["combined_discriminator"].compile(optimizer="Adam",loss='binary_crossentropy', metrics=['accuracy'])
+    
+    models["combined_discriminator"].compile(optimizer=Adam(lr=param["lr"]),loss='binary_crossentropy', metrics=['accuracy'])
 
-    models["combined_model"] = model.build_combined_model(inp, [classifier, discriminator])
-    models["combined_model"].compile(optimizer="Adam",loss={'c_dense2': 'categorical_crossentropy', 'd_dense2': \
+    
+    models["combined_model"].compile(optimizer=Adam(lr=param["lr"]),loss={'c_dense2': 'categorical_crossentropy', 'd_dense2': \
                        'binary_crossentropy'}, loss_weights={'c_dense2': 1, 'd_dense2': 2}, metrics=['accuracy'])
 
     Xs, ys = param["source_data"], param["source_label"]
@@ -120,15 +139,14 @@ def train(param):
             y_test_hat_t = models["combined_classifier"].predict(Xt)
             y_test_hat_s = models["combined_classifier"].predict(Xs)
 
-            print(ys.shape, y_test_hat_s.shape)
-            source_accuracy = accuracy_score(ys, y_test_hat_s)
-            target_accuracy = accuracy_score(yt, y_test_hat_t)
+            source_accuracy = accuracy_score(ys.argmax(1), y_test_hat_s.argmax(1))
+            target_accuracy = accuracy_score(yt.argmax(1), y_test_hat_t.argmax(1))
             log_str = "iter: {:05d}, source_accuracy: {:.5f}, target_accuracy: {:.5f}".format(i, source_accuracy*100, target_accuracy*100)
             print(log_str)
             if param["target_accuracy"] < target_accuracy:              
                 #model["optimal"] = models["combined_model"]
                 param["output_file"].write(log_str)
-                param["output_file"].flush()
+                #param["output_file"].flush()
 
         #if i % param["snapshot_interval"] == 0:
             #model["optimal"].save(os.path.join(param["output_path"],"iter_{:05d}_model.h5".format(i)))
@@ -138,23 +156,27 @@ if __name__ == "__main__":
     # Read parameter values from the console
     parser = argparse.ArgumentParser(description='Domain Adaptation')
     parser.add_argument('--gpu_id', type=str, nargs='?', default='0', help="GPU id to run")
+    parser.add_argument('--number_of_gpus', type=int, nargs='?', default='1', help="Number of gpus to run")
     parser.add_argument('--network_name', type=str, default='ResNet50', help="Name of the feature extractor network; ResNet18,34,50,101,152; AlexNet")
     parser.add_argument('--dataset_name', type=str, default='office', help="Name of the source dataset")
-    parser.add_argument('--source_path', type=str, default='Data/Office/amazon_10_list.txt', help="Path to source dataset")
+    parser.add_argument('--source_path', type=str, default='Data/Office/amazon_31_list.txt', help="Path to source dataset")
     parser.add_argument('--target_path', type=str, default='Data/Office/webcam_10_list.txt', help="Path to target dataset")
-    parser.add_argument('--batch_size', type=int, default=32, help="Batch size for training")
-    parser.add_argument('--test_interval', type=int, default=50, help="Gap between two successive test phases")
+    parser.add_argument('--learning_rate', type=int, default=0.0001, help="Learning rate")
+    parser.add_argument('--batch_size', type=int, default=16, help="Batch size for training")
+    parser.add_argument('--test_interval', type=int, default=2, help="Gap between two successive test phases")
     parser.add_argument('--snapshot_interval', type=int, default=100, help="Gap between saving output models")
     parser.add_argument('--output_dir', type=str, default='models', help="Directory for saving output model")
     args = parser.parse_args()
 
     # Set GPU device
-    os.environ["CUDA_VISIBLE_DEVICES"] = args.gpu_id
+    #os.environ["CUDA_VISIBLE_DEVICES"] = args.gpu_id
 
     # Initialize parameters
     param = {}
+    param["number_of_gpus"] = args.number_of_gpus
     param["inp_dims"] = [224, 224, 3]
     param["num_iterations"] = 200
+    param["lr"] = args.learning_rate
     param["batch_size"] = args.batch_size
     param["test_interval"] = args.test_interval
     param["source_path"] = args.source_path
