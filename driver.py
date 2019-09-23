@@ -90,27 +90,31 @@ def train(param):
     Xs, ys = param["source_data"], param["source_label"]
     Xt, yt = param["target_data"], param["target_label"]
 
-    y_adversarial_1 = np.array(([1] * param["batch_size"] + [0] * param["batch_size"]))
-    sample_weights_class = np.array(([1] * param["batch_size"] + [0] * param["batch_size"]))
-    sample_weights_adversarial = np.ones((param["batch_size"] * 2,))
+    ys_adv = np.array(([1.] * ys.shape[0]))
+    yt_adv = np.array(([0.] * yt.shape[0]))
+
+    y_advb_1 = np.array(([1] * param["batch_size"] + [0] * param["batch_size"]))
+    y_advb_2 = np.array(([0] * param["batch_size"] + [1] * param["batch_size"]))
+    weight_class = np.array(([1] * param["batch_size"] + [0] * param["batch_size"]))
+    weight_adv = np.ones((param["batch_size"] * 2,))
     S_batches = batch_generator([Xs, ys], param["batch_size"])
     T_batches = batch_generator([Xt, np.zeros(shape = (len(Xt),))], param["batch_size"])
 
     param["target_accuracy"] = 0
 
-    for i in range(param["num_iterations"]):
-        y_adversarial_2 = np.array(([0] * param["batch_size"] + [1] * param["batch_size"]))
-        X0, y0 = next(S_batches)
-        X1, y1 = next(T_batches)
-        X_adv = np.concatenate([X0, X1])
-        y_class = np.concatenate([y0, np.zeros_like(y0)])
+    for i in range(param["num_iterations"]):        
+        Xsb, ysb = next(S_batches)
+        Xtb, ytb = next(T_batches)
+        X_adv = np.concatenate([Xsb, Xtb])
+        y_class = np.concatenate([ysb, np.zeros_like(ysb)])
+
         adv_weights = []
         for layer in models["combined_model"].layers:
             if (layer.name.startswith("d_act_last")):
                 adv_weights.append(layer.get_weights())
           
-        stats = models["combined_model"].train_on_batch(X_adv, [y_class, y_adversarial_1],\
-                                sample_weight=[sample_weights_class, sample_weights_adversarial])            
+        stats1 = models["combined_model"].train_on_batch(X_adv, [y_class, y_advb_1],\
+                                sample_weight=[weight_class, weight_adv])            
         k = 0
         for layer in models["combined_model"].layers:
             if (layer.name.startswith("d_act_last")):                    
@@ -122,7 +126,7 @@ def train(param):
             if (not layer.name.startswith("d_act_last")):
                 class_weights.append(layer.get_weights())  
 
-        stats2 = models["combined_discriminator"].train_on_batch(X_adv, [y_adversarial_2])
+        stats2 = models["combined_discriminator"].train_on_batch(X_adv, [y_advb_2])
 
         k = 0
         for layer in models["combined_model"].layers:
@@ -131,17 +135,25 @@ def train(param):
                 k += 1
 
         if ((i + 1) % param["test_interval"] == 0):
-            y_test_hat_t = models["combined_classifier"].predict(Xt)
-            y_test_hat_s = models["combined_classifier"].predict(Xs)
+            ys_pred = models["combined_classifier"].predict(Xs)
+            yt_pred = models["combined_classifier"].predict(Xt)
+            ys_adv_pred = models["combined_discriminator"].predict(Xs)
+            yt_adv_pred = models["combined_discriminator"].predict(Xt)
 
-            source_accuracy = accuracy_score(ys.argmax(1), y_test_hat_s.argmax(1))  
-            
-            target_accuracy = accuracy_score(yt.argmax(1), y_test_hat_t.argmax(1))
-            log_str = "iter: {:05d}, source_accuracy: {:.5f}, target_accuracy: {:.5f}".format(i, source_accuracy*100, target_accuracy*100)
+            source_accuracy = accuracy_score(ys.argmax(1), ys_pred.argmax(1))              
+            target_accuracy = accuracy_score(yt.argmax(1), yt_pred.argmax(1))
+            source_domain_accuracy = accuracy_score(ys_adv, np.round(ys_adv_pred))              
+            target_domain_accuracy = accuracy_score(yt_adv, np.round(yt_adv_pred))
+
+            log_str = "iter: {:05d}: \nLABEL CLASSIFICATION: source_accuracy: {:.5f}, target_accuracy: {:.5f}\
+                    \nDOMAIN CLASSIFICATION: source_domain_accuracy: {:.5f}, target_domain_accuracy: {:.5f} \n"\
+                                                         .format(i, source_accuracy*100, target_accuracy*100,
+                                                      source_domain_accuracy*100, target_domain_accuracy*100)
             print(log_str)
+
             if param["target_accuracy"] < target_accuracy:              
                 param["output_file"].write(log_str)
-                models["combined_model"].save(os.path.join(param["output_path"],"iter_{:05d}_model.h5".format(i)))
+                #models["combined_model"].save(os.path.join(param["output_path"],"iter_{:05d}_model.h5".format(i)))
 
         #if i % param["snapshot_interval"] == 0:
             #model["optimal"].save(os.path.join(param["output_path"],"iter_{:05d}_model.h5".format(i)))
@@ -155,7 +167,7 @@ if __name__ == "__main__":
     parser.add_argument('--dataset_name', type = str, default = 'Office', help = "Name of the source dataset")
     parser.add_argument('--dropout_classifier', type = float, default = 0.25, help = "Dropout ratio for classifier")
     parser.add_argument('--dropout_discriminator', type = float, default = 0.25, help = "Dropout ratio for discriminator")    
-    parser.add_argument('--source_path', type = str, default = 'amazon_31_list.txt', help = "Path to source dataset")
+    parser.add_argument('--source_path', type = str, default = 'amazon_10_list.txt', help = "Path to source dataset")
     parser.add_argument('--target_path', type = str, default = 'webcam_10_list.txt', help = "Path to target dataset")
     parser.add_argument('--lr_classifier', type = float, default = 0.0001, help = "Learning rate for classifier model")
     parser.add_argument('--lr_discriminator', type = float, default = 0.0001, help = "Learning rate for discriminator model")
