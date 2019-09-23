@@ -85,7 +85,7 @@ def train(param):
     models["combined_classifier"].compile(optimizer = Adam(lr = param["lr_classifier"]), loss = 'categorical_crossentropy', metrics = ['accuracy'])
     models["combined_discriminator"].compile(optimizer = Adam(lr = param["lr_discriminator"]),loss = 'binary_crossentropy', metrics = ['accuracy'])
     models["combined_model"].compile(optimizer = Adam(lr = param["lr_combined"]),loss = {'c_act_last': 'categorical_crossentropy', 'd_act_last': \
-                       'binary_crossentropy'}, loss_weights = {'c_act_last': param["c_loss_weight"], 'd_act_last': param["d_loss_weight"]}, metrics = ['accuracy'])
+        'binary_crossentropy'}, loss_weights = {'c_act_last': param["c_loss_weight"], 'd_act_last': param["d_loss_weight"]}, metrics = ['accuracy'])
 
     Xs, ys = param["source_data"], param["source_label"]
     Xt, yt = param["target_data"], param["target_label"]
