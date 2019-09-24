@@ -172,7 +172,7 @@ if __name__ == "__main__":
     parser.add_argument('--lr_classifier', type = float, default = 0.0001, help = "Learning rate for classifier model")
     parser.add_argument('--lr_discriminator', type = float, default = 0.0001, help = "Learning rate for discriminator model")
     parser.add_argument('--lr_combined', type = float, default = 0.00001, help = "Learning rate for combined model")
-    parser.add_argument('--classifier_loss_weight', type = float, default = 1, help = "classifier loss weight")
+    parser.add_argument('--classifier_loss_weight', type = float, default = 1, help = "Classifier loss weight")
     parser.add_argument('--discriminator_loss_weight', type = float, default = 2, help = "Discriminator loss weight")
     parser.add_argument('--batch_size', type = int, default = 16, help = "Batch size for training")
     parser.add_argument('--test_interval', type = int, default = 3, help = "Gap between two successive test phases")
