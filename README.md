@@ -21,7 +21,7 @@ example running code:
 **Acceptable Parameters**
 
 - *--number_of_gpus, default = '1' : "Number of gpus required to run"*
-- *--network_name, default = 'ResNet50' : "Name of the feature extractor network")*
+- *--network_name, default = 'ResNet50' : "Name of the feature extractor network"*
 - *--dataset_name, default = 'Office' : "Name of the source dataset"*
 - *--dropout_classifier, default = 0.25 : "Dropout ratio for classifier"*
 - *--dropout_discriminator, default = 0.25 : "Dropout ratio for discriminator"*
