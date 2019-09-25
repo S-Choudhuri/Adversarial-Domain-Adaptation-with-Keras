@@ -16,6 +16,7 @@ The following code has drawn inspiration from the following papers:
 The code is tested on the **_Office-31_** dataset.
 - Download it from this link: *https://drive.google.com/file/d/0B4IapRTv9pJ1WGZVd1VDMmhwdlE/view*.
 - Create a *domain_adaptation_images* directory under *Data/Office/* and place the downloaded images inside.
+- Image paths, along with their corresponding class labels, are listed in the _.txt_ files present in the _Office_ directory. 
 
 ## Requirements
 
@@ -46,6 +47,12 @@ The model outputs the _Source_ and _Target classification_ accuracies.
 > *--lr_classifier*, default = 0.0001 : *"Learning rate for classifier model"*\
 > *--lr_discriminator*, default = 0.0001 : *"Learning rate for discriminator model"*\
 > *--lr_combined*, default = 0.00001 : *"Learning rate for combined model"*\
+> *--b1_classifier*, default = 0.9 : *"Exponential decay rate of first moment for classifier model optimizer"*\
+> *--b2_classifier*, default = 0.999 : *"Exponential decay rate of second moment for classifier model optimizer"*\
+> *--b1_discriminator*, default = 0.9 : *"Exponential decay rate of first moment for discriminator model optimizer"*\
+> *--b2_discriminator*, default = 0.999 : *"Exponential decay rate of second moment for discriminator model optimizer"*\
+> *--b1_combined*, default = 0.9, : *"Exponential decay rate of first moment for combined model optimizer"*\
+> *--b2_combined*, default = 0.999 : "Exponential decay rate of second moment for combined model optimizer"\
 > *--classifier_loss_weight*, default = 1 : *"Classifier loss weight"*\
 > *--discriminator_loss_weight*, default = 2 : *"Discriminator loss weight"*\
 > *--batch_size*, default = 16 : *"Batch size for training"*\

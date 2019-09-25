@@ -18,7 +18,8 @@ from keras.optimizers import Adam
 from keras.utils import multi_gpu_model
 from sklearn.metrics import accuracy_score
 import model
-import loss
+#import loss
+import optimizer
 
 def pil_loader(path):
     # Return the RGB variant of input image
@@ -82,9 +83,9 @@ def train(param):
         models["combined_discriminator"] = model.build_combined_discriminator(inp, discriminator)
         models["combined_model"] = model.build_combined_model(inp, [classifier, discriminator])
 
-    models["combined_classifier"].compile(optimizer = Adam(lr = param["lr_classifier"]), loss = 'categorical_crossentropy', metrics = ['accuracy'])
-    models["combined_discriminator"].compile(optimizer = Adam(lr = param["lr_discriminator"]),loss = 'binary_crossentropy', metrics = ['accuracy'])
-    models["combined_model"].compile(optimizer = Adam(lr = param["lr_combined"]),loss = {'c_act_last': 'categorical_crossentropy', 'd_act_last': \
+    models["combined_classifier"].compile(optimizer = optimizer.opt_classifier(param), loss = 'categorical_crossentropy', metrics = ['accuracy'])
+    models["combined_discriminator"].compile(optimizer = optimizer.opt_discriminator(param), loss = 'binary_crossentropy', metrics = ['accuracy'])
+    models["combined_model"].compile(optimizer = optimizer.opt_combined(param), loss = {'c_act_last': 'categorical_crossentropy', 'd_act_last': \
         'binary_crossentropy'}, loss_weights = {'c_act_last': param["c_loss_weight"], 'd_act_last': param["d_loss_weight"]}, metrics = ['accuracy'])
 
     Xs, ys = param["source_data"], param["source_label"]
@@ -170,8 +171,20 @@ if __name__ == "__main__":
     parser.add_argument('--source_path', type = str, default = 'amazon_10_list.txt', help = "Path to source dataset")
     parser.add_argument('--target_path', type = str, default = 'webcam_10_list.txt', help = "Path to target dataset")
     parser.add_argument('--lr_classifier', type = float, default = 0.0001, help = "Learning rate for classifier model")
+    parser.add_argument('--b1_classifier', type = float, default = 0.9, help = "Exponential decay rate of first moment \
+                                                                                             for classifier model optimizer")
+    parser.add_argument('--b2_classifier', type = float, default = 0.999, help = "Exponential decay rate of second moment \
+                                                                                            for classifier model optimizer")
     parser.add_argument('--lr_discriminator', type = float, default = 0.0001, help = "Learning rate for discriminator model")
+    parser.add_argument('--b1_discriminator', type = float, default = 0.9, help = "Exponential decay rate of first moment \
+                                                                                             for discriminator model optimizer")
+    parser.add_argument('--b2_discriminator', type = float, default = 0.999, help = "Exponential decay rate of second moment \
+                                                                                            for discriminator model optimizer")
     parser.add_argument('--lr_combined', type = float, default = 0.00001, help = "Learning rate for combined model")
+    parser.add_argument('--b1_combined', type = float, default = 0.9, help = "Exponential decay rate of first moment \
+                                                                                             for combined model optimizer")
+    parser.add_argument('--b2_combined', type = float, default = 0.999, help = "Exponential decay rate of second moment \
+                                                                                            for combined model optimizer")
     parser.add_argument('--classifier_loss_weight', type = float, default = 1, help = "Classifier loss weight")
     parser.add_argument('--discriminator_loss_weight', type = float, default = 2, help = "Discriminator loss weight")
     parser.add_argument('--batch_size', type = int, default = 16, help = "Batch size for training")
@@ -191,8 +204,14 @@ if __name__ == "__main__":
     param["inp_dims"] = [224, 224, 3]
     param["num_iterations"] = args.num_iterations
     param["lr_classifier"] = args.lr_classifier
+    param["b1_classifier"] = args.b1_classifier
+    param["b2_classifier"] = args.b2_classifier    
     param["lr_discriminator"] = args.lr_discriminator
+    param["b1_discriminator"] = args.b1_discriminator
+    param["b2_discriminator"] = args.b2_discriminator
     param["lr_combined"] = args.lr_combined
+    param["b1_combined"] = args.b1_combined
+    param["b2_combined"] = args.b2_combined        
     param["batch_size"] = args.batch_size
     param["c_loss_weight"] = args.classifier_loss_weight
     param["d_loss_weight"] = args.discriminator_loss_weight    
