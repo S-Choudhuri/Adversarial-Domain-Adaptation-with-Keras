@@ -15,7 +15,7 @@ The following code has drawn inspiration from the following papers:
 
 The code is tested on the **_Office-31_** dataset. 
 > Download it from this link: *https://drive.google.com/file/d/0B4IapRTv9pJ1WGZVd1VDMmhwdlE/view*. 
-> Create a *domain_adaptation_images* directory under *Data/Office/* and place the downloaded images in it.
+> Create a *domain_adaptation_images* directory under *Data/Office/* and place the downloaded images inside.
 
 **Requirements**
 
