@@ -14,9 +14,9 @@ Download the dataset from this link *https://drive.google.com/file/d/0B4IapRTv9p
 
 **Run _driver.py_**
 
-- example running code:
+example running code:
 
-*python driver.py --batch_size 32 --number_of_gpus 3 --lr_combined 0.00001 --num_iterations 5000*
+- *python driver.py --batch_size 32 --number_of_gpus 3 --lr_combined 0.00001 --num_iterations 5000*
 
 
 
