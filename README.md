@@ -14,7 +14,7 @@ The following code has drawn inspiration from the following papers:
 **Dataset Download**
 
 The code is tested on the **_Office-31_** dataset. 
-> Download it from this link: *https://drive.google.com/file/d/0B4IapRTv9pJ1WGZVd1VDMmhwdlE/view*.\
+> Download it from this link: *https://drive.google.com/file/d/0B4IapRTv9pJ1WGZVd1VDMmhwdlE/view*. \
 > Create a *domain_adaptation_images* directory under *Data/Office/* and place the downloaded images inside.
 
 **Requirements**
@@ -30,7 +30,7 @@ The code is compatible with the mentioned versions of the following libraries. H
 
 The model outputs the _Source_ and _Target classification accuracies_. 
 
-- An example running code is given below:
+- An example starter code is given below:
 
 > *python driver.py --batch_size 32 --number_of_gpus 2 --lr_combined 0.00001 --num_iterations 5000*
 
