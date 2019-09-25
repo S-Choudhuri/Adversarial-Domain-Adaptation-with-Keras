@@ -52,4 +52,4 @@ The model outputs the _Source_ and _Target classification accuracies_.
 > *--test_interval*, default = 3 : *"Gap between two successive test phases"*\
 > *--num_iterations*, default = 1000 : *"Number of iterations"*\
 > *--snapshot_interval*, default = 100 : *"Gap between saving output models"*\
-> *--output_dir*, default = 'models' : *"Directory for saving output model"*\
+> *--output_dir*, default = 'models' : *"Directory for saving output model"*
