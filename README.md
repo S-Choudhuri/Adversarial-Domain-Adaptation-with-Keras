@@ -1,6 +1,6 @@
 # Adversarial Domain Adaptation
 
-Following is a keras implementation of an Adversarial Domain Adaptation Network that classifies Target images by creating domain-invariant features from the source and target samples. 
+Following is a keras implementation of an Adversarial Domain Adaptation Model that classifies Target images by creating domain-invariant features from the Source and Target domain samples. The architecture involves three sub-networks: _(a) domain-invariant feature extractor, (b) label classifier and (c) domain discriminator._
 
 
 The following code has drawn inspiration from the following papers:
@@ -15,13 +15,15 @@ The following code has drawn inspiration from the following papers:
 
 The code is tested on the **_Office-31_** dataset. Download it from this link: *https://drive.google.com/file/d/0B4IapRTv9pJ1WGZVd1VDMmhwdlE/view*. Create a *domain_adaptation_images* directory under *Data/Office/* and place the downloaded images in it.
 
-**Run Model**
+**Model Run**
 
-The model outputs the _Source_ and _Target classification accuracy_. An example running code is given below:
+The model outputs the _Source_ and _Target classification accuracy_. 
+
+> An example running code is given below:
 
 - *python driver.py --batch_size 32 --number_of_gpus 2 --lr_combined 0.00001 --num_iterations 5000*
 
-**Acceptable Parameters**
+> Acceptable Parameters
 
 - *--number_of_gpus*, default = '1' : *"Number of gpus required to run"*
 - *--network_name*, default = 'ResNet50' : *"Name of the feature extractor network"*
