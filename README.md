@@ -1,6 +1,6 @@
 # Adversarial Domain Adaptation
 
-Following is a **_Keras_** implementation of an Adversarial Domain Adaptation Model that assigns class labels to images in the Target domain by extracting domain-invariant features from the labelled Source and unlabelled Target domain samples. The architecture involves three sub-networks: _(a) domain-invariant feature extractor, (b) label classifier and (c) domain discriminator._
+Following is a **_Keras_** implementation of an Adversarial Domain Adaptation Model that assigns class labels to images in the _Target_ domain by extracting domain-invariant features from the labelled _Source_ and unlabelled _Target_ domain images. The architecture involves three sub-networks: _(a) domain-invariant feature extractor, (b) label classifier and (c) domain discriminator._
 
 
 The following code has drawn inspiration from the following papers:
@@ -13,28 +13,28 @@ The following code has drawn inspiration from the following papers:
 
 ## Dataset Download 
 
-The code is tested on the **_Office-31_** dataset. 
-> Download it from this link: *https://drive.google.com/file/d/0B4IapRTv9pJ1WGZVd1VDMmhwdlE/view*. \
-> Create a *domain_adaptation_images* directory under *Data/Office/* and place the downloaded images inside.
+The code is tested on the **_Office-31_** dataset.
+- Download it from this link: *https://drive.google.com/file/d/0B4IapRTv9pJ1WGZVd1VDMmhwdlE/view*.
+- Create a *domain_adaptation_images* directory under *Data/Office/* and place the downloaded images inside.
 
 ## Requirements
 
 This code is compatible with the mentioned versions of the following libraries. However, it might also be compatible with their prior versions.
 
-- pillow 6.0.0
-- scikit-learn 0.20.2
-- tensorflow 1.12.0
-- keras 2.2.4
+> pillow 6.0.0\
+> scikit-learn 0.20.2\
+> tensorflow 1.12.0\
+> keras 2.2.4
 
 ## Model Run
 
-The model outputs the _Source_ and _Target classification accuracies_. 
+The model outputs the _Source_ and _Target classification_ accuracies. 
 
 - An example starter code is given below:
 
 > *python driver.py --batch_size 32 --number_of_gpus 2 --lr_combined 0.00001 --num_iterations 5000*
 
-- Acceptable Parameters:
+- Parameters:
 
 > *--number_of_gpus*, default = '1' : *"Number of gpus required to run"*\
 > *--network_name*, default = 'ResNet50' : *"Name of the feature extractor network"*\
