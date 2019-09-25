@@ -1,6 +1,6 @@
 # Adversarial Domain Adaptation
 
-Following is a **_Keras_** implementation of an Adversarial Domain Adaptation Model that assigns class labels to images in the _Target_ domain by extracting domain-invariant features from the labelled _Source_ and unlabelled _Target_ domain images. The architecture involves three sub-networks: _(a) domain-invariant feature extractor, (b) label classifier and (c) domain discriminator._
+Following is a **_Keras_** implementation of an Adversarial Domain Adaptation Model that assigns class labels to images in the _Target_ domain by extracting domain-invariant features from the labelled _Source_ and unlabelled _Target_ domain images. The architecture involves three sub-networks: _(a) domain-invariant feature extractor, (b) classifier and (c) domain discriminator._
 
 
 The following code has drawn inspiration from the following papers:
@@ -16,7 +16,24 @@ The following code has drawn inspiration from the following papers:
 The code is tested on the **_Office-31_** dataset.
 - Download it from this link: *https://drive.google.com/file/d/0B4IapRTv9pJ1WGZVd1VDMmhwdlE/view*.
 - Create a *domain_adaptation_images* directory under *Data/Office/* and place the downloaded images inside.
-- Image paths, along with their corresponding class labels, are listed in the _.txt_ files present in the _Office_ directory. 
+- Image paths, along with the corresponding class labels, are listed in the _.txt_ files present in the _Office_ directory. 
+- The _Data_ directory structure should look like this:
+
+```
+.
+├── Data
+|     └── Office
+|          ├── domain_adaptation_images 
+|          |           └── place the office-31 image folders here (amazon, dslr, webcam)
+|          ├── amazon_10_list.txt
+|          ├── amazon_31_list.txt
+|          ├── dslr_10_list.txt
+|          ├── dslr_31_list.txt
+|          ├── webcam_31_list.txt
+|          └── webcam_10_list.txt
+└── ...
+
+```
 
 ## Requirements
 
@@ -27,36 +44,61 @@ This code is compatible with the mentioned versions of the following libraries. 
 > tensorflow 1.12.0\
 > keras 2.2.4
 
+## Model Specifications
+
+**Domain-Invariant Feature Extractor:**
+
+- **Model**     : _Resnet50_ (initialized with _'imagenet'_ weights)
+- **Loss**      : _**w**<sub>1</sub> * classifier loss + **w**<sub>2</sub> * discriminator loss (**w**<sub>1</sub> = classifier loss weight and **w**<sub>2</sub> = discriminator loss weight)_
+- **Optimizer** : _Adam_
+
+**Classifier:**
+
+- **Model**     : _Dense(400) --> Dense(100) --> Dense(number of classes)_
+- **Loss**      : _Categorical cross-entropy_
+- **Optimizer** : _Adam_
+
+**Domain Discriminator:**
+
+- **Model**     : _Dense(400) --> Dense(100) --> Dense(1)_
+- **Loss**      : _Binary cross-entropy_
+- **Optimizer** : _Adam_
+
+
 ## Model Run
 
-The model outputs the _Source_ and _Target classification_ accuracies. 
+The model outputs the _Target_labels_ and the _Source_ and _Target classification_ accuracies, which are saved under the _Snapshot/Models_ directory.
 
 - An example starter code is given below:
 
-> *python driver.py --batch_size 32 --number_of_gpus 2 --lr_combined 0.00001 --num_iterations 5000*
+```
+python driver.py --batch_size 32 --number_of_gpus 2 --lr_combined 0.00001 --num_iterations 5000
+```
 
 - Parameters:
 
-> *--number_of_gpus*, default = '1' : *"Number of gpus required to run"*\
-> *--network_name*, default = 'ResNet50' : *"Name of the feature extractor network"*\
-> *--dataset_name*, default = 'Office' : *"Name of the source dataset"*\
-> *--dropout_classifier*, default = 0.25 : *"Dropout ratio for classifier"*\
-> *--dropout_discriminator*, default = 0.25 : *"Dropout ratio for discriminator"*\
-> *--source_path*, default = 'amazon_10_list.txt' : *"Path to source dataset"*\
-> *--target_path*, default = 'webcam_10_list.txt' : *"Path to target dataset"*\
-> *--lr_classifier*, default = 0.0001 : *"Learning rate for classifier model"*\
-> *--lr_discriminator*, default = 0.0001 : *"Learning rate for discriminator model"*\
-> *--lr_combined*, default = 0.00001 : *"Learning rate for combined model"*\
-> *--b1_classifier*, default = 0.9 : *"Exponential decay rate of first moment for classifier model optimizer"*\
-> *--b2_classifier*, default = 0.999 : *"Exponential decay rate of second moment for classifier model optimizer"*\
-> *--b1_discriminator*, default = 0.9 : *"Exponential decay rate of first moment for discriminator model optimizer"*\
-> *--b2_discriminator*, default = 0.999 : *"Exponential decay rate of second moment for discriminator model optimizer"*\
-> *--b1_combined*, default = 0.9, : *"Exponential decay rate of first moment for combined model optimizer"*\
-> *--b2_combined*, default = 0.999 : "Exponential decay rate of second moment for combined model optimizer"\
-> *--classifier_loss_weight*, default = 1 : *"Classifier loss weight"*\
-> *--discriminator_loss_weight*, default = 2 : *"Discriminator loss weight"*\
-> *--batch_size*, default = 16 : *"Batch size for training"*\
-> *--test_interval*, default = 3 : *"Gap between two successive test phases"*\
-> *--num_iterations*, default = 1000 : *"Number of iterations"*\
-> *--snapshot_interval*, default = 100 : *"Gap between saving output models"*\
-> *--output_dir*, default = 'models' : *"Directory for saving output model"*
+| Parameter Name | Default Value | Description |
+|:---:|:---:|:---:|
+| `--number_of_gpus` | default = '1' | "Number of gpus required to run" |
+| `--network_name` | default = 'ResNet50' | "Name of the feature extractor network" |
+| `--dataset_name` | default = 'Office' | "Name of the source dataset" |
+| `--dropout_classifier` | default = 0.25 | "Dropout ratio for classifier" |
+| `--dropout_discriminator` | default = 0.25 | "Dropout ratio for discriminator" |
+| `--source_path` | default = 'amazon_10_list.txt' | "Path to source dataset" |
+| `--target_path` | default = 'webcam_10_list.txt' | "Path to target dataset" |
+| `--lr_classifier` | default = 0.0001 | "Learning rate for classifier model" |
+| `--lr_discriminator` | default = 0.0001 | "Learning rate for discriminator model" |
+| `--lr_combined` | default = 0.00001 | "Learning rate for combined model" |
+| `--b1_classifier` | default = 0.9 | "Exponential decay rate of first moment for classifier model optimizer" |
+| `--b2_classifier` | default = 0.999 | "Exponential decay rate of second moment for classifier model optimizer" |
+| `--b1_discriminator` | default = 0.9 | "Exponential decay rate of first moment for discriminator model optimizer" |
+| `--b2_discriminator` | default = 0.999 | "Exponential decay rate of second moment for discriminator model optimizer" |
+| `--b1_combined` | default = 0.9 | "Exponential decay rate of first moment for combined model optimizer" |
+| `--b2_combined` | default = 0.999 | "Exponential decay rate of second moment for combined model optimizer" |
+| `--classifier_loss_weight` | default = 1 | "Classifier loss weight" |
+| `--discriminator_loss_weight` | default = 2 | "Discriminator loss weight" |
+| `--batch_size` | default = 16 | "Batch size for training" |
+| `--test_interval` | default = 3 | "Gap between two successive test phases" |
+| `--num_iterations` | default = 1000 | "Number of iterations" |
+| `--snapshot_interval` | default = 100 | "Gap between saving output models" |
+| `--output_dir` | default = 'models' | "Directory for saving output model" |
