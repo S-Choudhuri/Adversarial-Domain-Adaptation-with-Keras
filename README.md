@@ -1,6 +1,6 @@
 # Adversarial Domain Adaptation
 
-Following is a keras implementation of an Adversarial Domain Adaptation Model that classifies Target images by creating domain-invariant features from the Source and Target domain samples. The architecture involves three sub-networks: _(a) domain-invariant feature extractor, (b) label classifier and (c) domain discriminator._
+Following is a **_Keras_** implementation of an Adversarial Domain Adaptation Model that assigns class labels to images in the Target domain by extracting domain-invariant features from the labelled Source and unlabelled Target domain samples. The architecture involves three sub-networks: _(a) domain-invariant feature extractor, (b) label classifier and (c) domain discriminator._
 
 
 The following code has drawn inspiration from the following papers:
@@ -19,7 +19,7 @@ The code is tested on the **_Office-31_** dataset.
 
 **Requirements**
 
-The code is compatible with the following libraries. However, it might also work with their earlier versions.
+The code is compatible with the mentioned versions of the following libraries. However, it might also work with their previous versions.
 
 - pillow 6.0.0
 - scikit-learn 0.20.2
