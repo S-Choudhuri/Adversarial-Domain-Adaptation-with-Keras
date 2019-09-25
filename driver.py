@@ -103,6 +103,11 @@ def train(param):
 
     param["target_accuracy"] = 0
 
+    optim = {}
+    optim["iter"] = 0
+    optim["acc"] = ""
+    optim["labels"] = np.array(Xt.shape[0],)
+
     for i in range(param["num_iterations"]):        
         Xsb, ysb = next(S_batches)
         Xtb, ytb = next(T_batches)
@@ -147,16 +152,20 @@ def train(param):
             target_domain_accuracy = accuracy_score(yt_adv, np.round(yt_adv_pred))
 
             log_str = "iter: {:05d}: \nLABEL CLASSIFICATION: source_accuracy: {:.5f}, target_accuracy: {:.5f}\
-                    \nDOMAIN CLASSIFICATION: source_domain_accuracy: {:.5f}, target_domain_accuracy: {:.5f} \n"\
+                    \nDOMAIN DISCRIMINATION: source_domain_accuracy: {:.5f}, target_domain_accuracy: {:.5f} \n"\
                                                          .format(i, source_accuracy*100, target_accuracy*100,
                                                       source_domain_accuracy*100, target_domain_accuracy*100)
             print(log_str)
 
             if param["target_accuracy"] < target_accuracy:              
-                param["output_file"].write(log_str)
+                optim["iter"] = i
+                optim["acc"] = log_str
+                optim["labels"] = ys_pred.argmax(1)
                 #models["combined_model"].save(os.path.join(param["output_path"],"iter_{:05d}_model.h5".format(i)))
 
-        #if i % param["snapshot_interval"] == 0:
+        if ((i + 1) % param["snapshot_interval"] == 0):
+            np.save(os.path.join(param["output_path"],"yPred_{}".format(optim["iter"])), optim["labels"])
+            open(os.path.join(param["output_path"], "acc_{}.txt".format(optim["iter"])), "w").write(optim["acc"])
             #model["optimal"].save(os.path.join(param["output_path"],"iter_{:05d}_model.h5".format(i)))
             #model["optimal"].save(os.path.join(param["output_path"],"iter_model.h5"))
 
@@ -190,8 +199,8 @@ if __name__ == "__main__":
     parser.add_argument('--batch_size', type = int, default = 16, help = "Batch size for training")
     parser.add_argument('--test_interval', type = int, default = 3, help = "Gap between two successive test phases")
     parser.add_argument('--num_iterations', type = int, default = 1000, help = "Number of iterations")
-    parser.add_argument('--snapshot_interval', type = int, default = 100, help = "Gap between saving output models")
-    parser.add_argument('--output_dir', type = str, default = 'models', help = "Directory for saving output model")
+    parser.add_argument('--snapshot_interval', type = int, default = 7, help = "Gap between saving outputs")
+    parser.add_argument('--output_dir', type = str, default = 'Models', help = "Directory for saving outputs")
     args = parser.parse_args()
 
     # Set GPU device
@@ -221,15 +230,12 @@ if __name__ == "__main__":
     param["source_path"] = os.path.join("Data", args.dataset_name, args.source_path)
     param["target_path"] = os.path.join("Data", args.dataset_name, args.target_path)
     param["snapshot_interval"] = args.snapshot_interval
-    param["output_path"] = "snapshot/" + args.output_dir
+    param["output_path"] = os.path.join("Snapshot", args.output_dir)
 
     # Create directory for saving models and log files
     if not os.path.exists(param["output_path"]):
         os.mkdir(param["output_path"])
-    param["output_file"] = open(os.path.join(param["output_path"], "log.txt"), "w")
-    if not os.path.exists(param["output_path"]):
-        os.mkdir(param["output_path"])
-
+    
     # Load source and target data
     param["source_data"], param["source_label"] = data_loader(param["source_path"], param["inp_dims"])
     param["target_data"], param["target_label"] = data_loader(param["target_path"], param["inp_dims"])
