@@ -18,5 +18,10 @@ example running code:
 
 - *python driver.py --batch_size 32 --number_of_gpus 3 --lr_combined 0.00001 --num_iterations 5000*
 
+**Acceptable Parameters**
+
+--number_of_gpus  : "Number of gpus to run"
+--network_name    : "Name of the feature extractor network"  (default network: ResNet50)  
+
 
 
