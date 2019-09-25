@@ -1,4 +1,4 @@
-# Domain_Adaptation
+# Adversarial Domain Adaptation
 
 The following code has drawn inspiration from the following papers:
 
@@ -8,7 +8,7 @@ The following code has drawn inspiration from the following papers:
 
 - *Tzeng, Eric, Judy Hoffman, Kate Saenko, and Trevor Darrell. "Adversarial discriminative domain adaptation." In Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition, pp. 7167-7176. 2017*.
 
-**The code is tested on the _Office31_ dataset**
+**The code is tested on the _Office-31_ dataset**
 
 Download the dataset from this link *https://drive.google.com/file/d/0B4IapRTv9pJ1WGZVd1VDMmhwdlE/view*. Create a *domain_adaptation_images* directory under *Data/Office/* and place the downloaded images under it.
 
