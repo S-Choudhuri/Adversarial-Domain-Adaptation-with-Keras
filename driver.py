@@ -185,7 +185,7 @@ if __name__ == "__main__":
                                                                                              for classifier model optimizer")
     parser.add_argument('--b2_classifier', type = float, default = 0.999, help = "Exponential decay rate of second moment \
                                                                                             for classifier model optimizer")
-    parser.add_argument('--lr_discriminator', type = float, default = 0.0001, help = "Learning rate for discriminator model")
+    parser.add_argument('--lr_discriminator', type = float, default = 0.00001, help = "Learning rate for discriminator model")
     parser.add_argument('--b1_discriminator', type = float, default = 0.9, help = "Exponential decay rate of first moment \
                                                                                              for discriminator model optimizer")
     parser.add_argument('--b2_discriminator', type = float, default = 0.999, help = "Exponential decay rate of second moment \
@@ -196,11 +196,11 @@ if __name__ == "__main__":
     parser.add_argument('--b2_combined', type = float, default = 0.999, help = "Exponential decay rate of second moment \
                                                                                             for combined model optimizer")
     parser.add_argument('--classifier_loss_weight', type = float, default = 1, help = "Classifier loss weight")
-    parser.add_argument('--discriminator_loss_weight', type = float, default = 2, help = "Discriminator loss weight")
-    parser.add_argument('--batch_size', type = int, default = 16, help = "Batch size for training")
+    parser.add_argument('--discriminator_loss_weight', type = float, default = 4, help = "Discriminator loss weight")
+    parser.add_argument('--batch_size', type = int, default = 32, help = "Batch size for training")
     parser.add_argument('--test_interval', type = int, default = 3, help = "Gap between two successive test phases")
-    parser.add_argument('--num_iterations', type = int, default = 1000, help = "Number of iterations")
-    parser.add_argument('--snapshot_interval', type = int, default = 7, help = "Gap between saving outputs")
+    parser.add_argument('--num_iterations', type = int, default = 12000, help = "Number of iterations")
+    parser.add_argument('--snapshot_interval', type = int, default = 500, help = "Gap between saving outputs")
     parser.add_argument('--output_dir', type = str, default = 'Models', help = "Directory for saving outputs")
     args = parser.parse_args()
 
