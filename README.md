@@ -9,7 +9,7 @@ Following is a **_Keras_** implementation of an Adversarial Domain Adaptation Mo
 ## Dataset Download 
 
 The code is tested on the **_Office-31_** dataset.
-- Download it from this link: [Office-31](*https://drive.google.com/file/d/0B4IapRTv9pJ1WGZVd1VDMmhwdlE/view*).
+- Download it from this link: [Office-31](https://drive.google.com/file/d/0B4IapRTv9pJ1WGZVd1VDMmhwdlE/view).
 - Create a *domain_adaptation_images* directory under *Data/Office/* and place the downloaded images inside.
 - Image paths, along with the corresponding class labels, are listed in the _.txt_ files present in the _Office_ directory. 
 - The _Data_ directory structure should look like this:
@@ -113,4 +113,4 @@ The following code has drawn inspiration from the following papers:
 
 ## License
 
-[![License](http://img.shields.io/:license-mit-blue.svg?style=flat-square)](https://github.com/S-Choudhuri/Adversarial-Domain-Adaptation-with-Keras/LICENSE)
+[![License](http://img.shields.io/:license-mit-blue.svg?style=flat-square)](https://github.com/S-Choudhuri/Adversarial-Domain-Adaptation-with-Keras/blob/master/LICENSE)
