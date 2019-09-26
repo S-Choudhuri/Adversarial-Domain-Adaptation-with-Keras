@@ -53,7 +53,7 @@ This code is compatible with the mentioned versions of the following libraries. 
 - **Model**     : _Resnet50_ (initialized with _'imagenet'_ weights)
 - **Loss**      : _**w**<sub>1</sub> * classifier loss - **w**<sub>2</sub> * discriminator loss (**w**<sub>1</sub> = classifier loss weight and **w**<sub>2</sub> = discriminator loss weight)_
 
-                 - The gradient-reversal process is done in a GAN fashion where the domain labels are flipped for the _Source_ and _Target_.
+  - The gradient-reversal process is done in a GAN fashion where the domain labels are flipped for the _Source_ and _Target_.
 
 - **Optimizer** : _Adam_
 
