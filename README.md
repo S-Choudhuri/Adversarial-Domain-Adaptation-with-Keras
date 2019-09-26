@@ -5,13 +5,6 @@ Following is a **_Keras_** implementation of an Adversarial Domain Adaptation Mo
 
 ![Model Diagram](Diagrams/model_fig.png "Schematic diagram of the Model")
 
-The following code has drawn inspiration from the following papers:
-
-- *Ganin, Yaroslav, and Victor Lempitsky. "Unsupervised domain adaptation by backpropagation." arXiv preprint arXiv:1409.7495 (2014)*.
-
-- *Li, Yanghao, Naiyan Wang, Jianping Shi, Jiaying Liu, and Xiaodi Hou. "Revisiting batch normalization for practical domain adaptation." arXiv preprint arXiv:1603.04779 (2016)*.
-
-- *Tzeng, Eric, Judy Hoffman, Kate Saenko, and Trevor Darrell. "Adversarial discriminative domain adaptation." In Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition, pp. 7167-7176. 2017*.
 
 ## Dataset Download 
 
@@ -107,3 +100,18 @@ python driver.py --batch_size 32 --number_of_gpus 2 --lr_combined 0.00001 --num_
 | `--num_iterations` | default = 1000 | "Number of iterations" |
 | `--snapshot_interval` | default = 100 | "Gap between saving output models" |
 | `--output_dir` | default = 'models' | "Directory for saving output model" |
+
+## Acknowledgements
+
+The following code has drawn inspiration from the following papers:
+
+- *Ganin, Yaroslav, and Victor Lempitsky. "Unsupervised domain adaptation by backpropagation." arXiv preprint arXiv:1409.7495 (2014)*.
+
+- *Li, Yanghao, Naiyan Wang, Jianping Shi, Jiaying Liu, and Xiaodi Hou. "Revisiting batch normalization for practical domain adaptation." arXiv preprint arXiv:1603.04779 (2016)*.
+
+- *Tzeng, Eric, Judy Hoffman, Kate Saenko, and Trevor Darrell. "Adversarial discriminative domain adaptation." In Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition, pp. 7167-7176. 2017*.
+
+# License
+[![License](http://img.shields.io/:license-mit-blue.svg?style=flat-square)](http://badges.mit-license.org)
+
+[MIT license](https://github.com/S-Choudhuri/Adversarial-Domain-Adaptation-with-Keras)
