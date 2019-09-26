@@ -18,7 +18,6 @@ from keras.optimizers import Adam
 from keras.utils import multi_gpu_model
 from sklearn.metrics import accuracy_score
 import model
-import data_augment
 import optimizer
 
 def pil_loader(path):
