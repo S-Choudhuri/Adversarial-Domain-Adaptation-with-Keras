@@ -85,16 +85,17 @@ def train(param):
 
     models["combined_classifier"].compile(optimizer = optimizer.opt_classifier(param), loss = 'categorical_crossentropy', metrics = ['accuracy'])
     models["combined_discriminator"].compile(optimizer = optimizer.opt_discriminator(param), loss = 'binary_crossentropy', metrics = ['accuracy'])
-    models["combined_model"].compile(optimizer = optimizer.opt_combined(param), loss = {'c_act_last': 'categorical_crossentropy', 'd_act_last': \
-        'binary_crossentropy'}, loss_weights = {'c_act_last': param["c_loss_weight"], 'd_act_last': param["d_loss_weight"]}, metrics = ['accuracy'])
+    models["combined_model"].compile(optimizer = optimizer.opt_combined(param), loss = {'class_act_last': 'categorical_crossentropy', 'dis_act_last': \
+        'binary_crossentropy'}, loss_weights = {'class_act_last': param["class_loss_weight"], 'dis_act_last': param["dis_loss_weight"]}, metrics = ['accuracy'])
 
     Xs, ys = param["source_data"], param["source_label"]
     Xt, yt = param["target_data"], param["target_label"]
 
-    ys_adv = np.array(([1.] * ys.shape[0]))
-    yt_adv = np.array(([0.] * yt.shape[0]))
+    # Source domain is represented by label 0 and Target by 1
+    ys_adv = np.array(([0.] * ys.shape[0]))
+    yt_adv = np.array(([1.] * yt.shape[0]))
 
-    y_advb_1 = np.array(([1] * param["batch_size"] + [0] * param["batch_size"]))
+    y_advb_1 = np.array(([1] * param["batch_size"] + [0] * param["batch_size"])) # For gradient reversal
     y_advb_2 = np.array(([0] * param["batch_size"] + [1] * param["batch_size"]))
     weight_class = np.array(([1] * param["batch_size"] + [0] * param["batch_size"]))
     weight_adv = np.ones((param["batch_size"] * 2,))
@@ -116,27 +117,27 @@ def train(param):
 
         adv_weights = []
         for layer in models["combined_model"].layers:
-            if (layer.name.startswith("d_act_last")):
+            if (layer.name.startswith("dis_")):
                 adv_weights.append(layer.get_weights())
           
         stats1 = models["combined_model"].train_on_batch(X_adv, [y_class, y_advb_1],\
                                 sample_weight=[weight_class, weight_adv])            
         k = 0
         for layer in models["combined_model"].layers:
-            if (layer.name.startswith("d_act_last")):                    
+            if (layer.name.startswith("dis_")):                    
                 layer.set_weights(adv_weights[k])
                 k += 1
 
         class_weights = []        
         for layer in models["combined_model"].layers:
-            if (not layer.name.startswith("d_act_last")):
+            if (not layer.name.startswith("dis_")):
                 class_weights.append(layer.get_weights())  
 
         stats2 = models["combined_discriminator"].train_on_batch(X_adv, [y_advb_2])
 
         k = 0
         for layer in models["combined_model"].layers:
-            if (not layer.name.startswith("d_act_last")):
+            if (not layer.name.startswith("dis_")):
                 layer.set_weights(class_weights[k])
                 k += 1
 
@@ -221,9 +222,9 @@ if __name__ == "__main__":
     param["lr_combined"] = args.lr_combined
     param["b1_combined"] = args.b1_combined
     param["b2_combined"] = args.b2_combined        
-    param["batch_size"] = args.batch_size
-    param["c_loss_weight"] = args.classifier_loss_weight
-    param["d_loss_weight"] = args.discriminator_loss_weight    
+    param["batch_size"] = int(args.batch_size/2)
+    param["class_loss_weight"] = args.classifier_loss_weight
+    param["dis_loss_weight"] = args.discriminator_loss_weight    
     param["drop_classifier"] = args.dropout_classifier
     param["drop_discriminator"] = args.dropout_discriminator
     param["test_interval"] = args.test_interval
