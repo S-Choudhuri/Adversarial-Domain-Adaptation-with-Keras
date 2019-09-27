@@ -105,11 +105,11 @@ python driver.py --batch_size 32 --number_of_gpus 2 --lr_combined 0.00001 --num_
 
 The following code has drawn inspiration from the following papers:
 
-- *Ganin, Yaroslav, and Victor Lempitsky. "Unsupervised domain adaptation by backpropagation." arXiv preprint arXiv:1409.7495 (2014)*.
+- *Ganin, Yaroslav, and Victor Lempitsky. "Unsupervised domain adaptation by backpropagation."* [Link](https://github.com/S-Choudhuri/Adversarial-Domain-Adaptation-with-Keras/blob/master/Papers/Unsupervised_Domain_Adaptation_by_Backpropagation.pdf)
 
-- *Li, Yanghao, Naiyan Wang, Jianping Shi, Jiaying Liu, and Xiaodi Hou. "Revisiting batch normalization for practical domain adaptation." arXiv preprint arXiv:1603.04779 (2016)*.
+- *Li, Yanghao, Naiyan Wang, Jianping Shi, Jiaying Liu, and Xiaodi Hou. "Revisiting batch normalization for practical domain adaptation."* [Link](https://github.com/S-Choudhuri/Adversarial-Domain-Adaptation-with-Keras/blob/master/Papers/Revisiting_Batch_Normalization_for_Practical_Domain_Adaptation.pdf)
 
-- *Tzeng, Eric, Judy Hoffman, Kate Saenko, and Trevor Darrell. "Adversarial discriminative domain adaptation." In Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition, pp. 7167-7176. 2017*.
+- *Tzeng, Eric, Judy Hoffman, Kate Saenko, and Trevor Darrell. "Adversarial discriminative domain adaptation."* [Link](https://github.com/S-Choudhuri/Adversarial-Domain-Adaptation-with-Keras/blob/master/Papers/Adversarial_Discriminative_Domain.pdf)
 
 ## License
 
