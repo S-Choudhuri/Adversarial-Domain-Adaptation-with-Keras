@@ -163,13 +163,12 @@ def train(param):
                 optim["acc"] = log_str
                 optim["labels"] = ys_pred.argmax(1)
 
-        gap_last_snap = gap_last_snap + 1;
-        
                 if (gap_last_snap >= param["snapshot_interval"]):
                     gap_last_snap = 0
                     np.save(os.path.join(param["output_path"],"yPred_{}".format(optim["iter"])), optim["labels"])
                     open(os.path.join(param["output_path"], "acc_{}.txt".format(optim["iter"])), "w").write(optim["acc"])
                     models["combined_classifier"].save(os.path.join(param["output_path"],"iter_{:05d}_model.h5".format(i)))
+        gap_last_snap = gap_last_snap + 1;
 
 if __name__ == "__main__":
     # Read parameter values from the console
