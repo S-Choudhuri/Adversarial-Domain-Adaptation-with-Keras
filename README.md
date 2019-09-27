@@ -94,11 +94,11 @@ python driver.py --batch_size 32 --number_of_gpus 2 --lr_combined 0.00001 --num_
 | `--b1_combined` | default = 0.9 | "Exponential decay rate of first moment for combined model optimizer" |
 | `--b2_combined` | default = 0.999 | "Exponential decay rate of second moment for combined model optimizer" |
 | `--classifier_loss_weight` | default = 1 | "Classifier loss weight" |
-| `--discriminator_loss_weight` | default = 2 | "Discriminator loss weight" |
-| `--batch_size` | default = 16 | "Batch size for training" |
+| `--discriminator_loss_weight` | default = 4 | "Discriminator loss weight" |
+| `--batch_size` | default = 32 | "Batch size for training" |
 | `--test_interval` | default = 3 | "Gap between two successive test phases" |
-| `--num_iterations` | default = 1000 | "Number of iterations" |
-| `--snapshot_interval` | default = 100 | "Gap between saving output models" |
+| `--num_iterations` | default = 12000 | "Number of iterations" |
+| `--snapshot_interval` | default = 500 | "Gap between saving output models" |
 | `--output_dir` | default = 'models' | "Directory for saving output model" |
 
 ## Acknowledgements
