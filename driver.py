@@ -107,6 +107,7 @@ def train(param):
     optim["iter"] = 0
     optim["acc"] = ""
     optim["labels"] = np.array(Xt.shape[0],)
+    gap_last_snap = 0
 
     for i in range(param["num_iterations"]):        
         Xsb, ysb = next(S_batches)
@@ -161,11 +162,14 @@ def train(param):
                 optim["iter"] = i
                 optim["acc"] = log_str
                 optim["labels"] = ys_pred.argmax(1)
-                #models["combined_classifier"].save(os.path.join(param["output_path"],"iter_{:05d}_model.h5".format(i)))
 
-        if ((i + 1) % param["snapshot_interval"] == 0):
-            np.save(os.path.join(param["output_path"],"yPred_{}".format(optim["iter"])), optim["labels"])
-            open(os.path.join(param["output_path"], "acc_{}.txt".format(optim["iter"])), "w").write(optim["acc"])
+        gap_last_snap = gap_last_snap + 1;
+        
+                if (gap_last_snap >= param["snapshot_interval"]):
+                    gap_last_snap = 0
+                    np.save(os.path.join(param["output_path"],"yPred_{}".format(optim["iter"])), optim["labels"])
+                    open(os.path.join(param["output_path"], "acc_{}.txt".format(optim["iter"])), "w").write(optim["acc"])
+                    models["combined_classifier"].save(os.path.join(param["output_path"],"iter_{:05d}_model.h5".format(i)))
 
 if __name__ == "__main__":
     # Read parameter values from the console
@@ -197,7 +201,7 @@ if __name__ == "__main__":
     parser.add_argument('--batch_size', type = int, default = 32, help = "Batch size for training")
     parser.add_argument('--test_interval', type = int, default = 3, help = "Gap between two successive test phases")
     parser.add_argument('--num_iterations', type = int, default = 12000, help = "Number of iterations")
-    parser.add_argument('--snapshot_interval', type = int, default = 500, help = "Gap between saving outputs")
+    parser.add_argument('--snapshot_interval', type = int, default = 500, help = "Minimum gap between saving outputs")
     parser.add_argument('--output_dir', type = str, default = 'Models', help = "Directory for saving outputs")
     args = parser.parse_args()
 

@@ -94,7 +94,7 @@ python driver.py --batch_size 32 --number_of_gpus 2 --lr_combined 0.00001 --num_
 | `--classifier_loss_weight` | default = 1 | "Classifier loss weight" |
 | `--discriminator_loss_weight` | default = 4 | "Discriminator loss weight" |
 | `--batch_size` | default = 32 | "Batch size for training" |
-| `--test_interval` | default = 3 | "Gap between two successive test phases" |
+| `--test_interval` | default = 3 | "Minimum gap between two successive test phases" |
 | `--num_iterations` | default = 12000 | "Number of iterations" |
 | `--snapshot_interval` | default = 500 | "Gap between saving output models" |
 | `--output_dir` | default = 'models' | "Directory for saving output model" |
