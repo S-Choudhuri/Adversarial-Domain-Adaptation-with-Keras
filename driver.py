@@ -161,13 +161,11 @@ def train(param):
                 optim["iter"] = i
                 optim["acc"] = log_str
                 optim["labels"] = ys_pred.argmax(1)
-                #models["combined_model"].save(os.path.join(param["output_path"],"iter_{:05d}_model.h5".format(i)))
+                #models["combined_classifier"].save(os.path.join(param["output_path"],"iter_{:05d}_model.h5".format(i)))
 
         if ((i + 1) % param["snapshot_interval"] == 0):
             np.save(os.path.join(param["output_path"],"yPred_{}".format(optim["iter"])), optim["labels"])
             open(os.path.join(param["output_path"], "acc_{}.txt".format(optim["iter"])), "w").write(optim["acc"])
-            #model["optimal"].save(os.path.join(param["output_path"],"iter_{:05d}_model.h5".format(i)))
-            #model["optimal"].save(os.path.join(param["output_path"],"iter_model.h5"))
 
 if __name__ == "__main__":
     # Read parameter values from the console
