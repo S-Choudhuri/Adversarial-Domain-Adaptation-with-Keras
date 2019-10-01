@@ -25,7 +25,7 @@ def build_classifier(param, embedding):
 
     densel = Dense(param["source_label"].shape[1], name = 'class_dense_last')(drop2)
     bnl = BatchNormalization(name = 'class_bn_last')(densel)
-    actl = Activation('relu', name = 'class_act_last')(bnl)
+    actl = Activation('softmax', name = 'class_act_last')(bnl)
     return actl
 
 def build_discriminator(param, embedding):
@@ -41,7 +41,7 @@ def build_discriminator(param, embedding):
 
     densel = Dense(1, name = 'dis_dense_last')(drop2)
     bnl = BatchNormalization(name = 'dis_bn_last')(densel)
-    actl = Activation('relu', name = 'dis_act_last')(bnl)
+    actl = Activation('sigmoid', name = 'dis_act_last')(bnl)
     return actl
 
 def build_combined_classifier(inp, classifier):
