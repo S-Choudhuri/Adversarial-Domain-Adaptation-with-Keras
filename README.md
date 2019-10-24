@@ -2,9 +2,11 @@
 
 Following is a **_Keras_** implementation of an Adversarial Domain Adaptation Model that assigns class labels to images in the _Target_ domain by extracting domain-invariant features from the labelled _Source_ and unlabelled _Target_ domain images. The architecture involves three sub-networks: _(a) domain-invariant feature extractor, (b) classifier and (c) domain discriminator._
 
-
 ![Model Diagram](Diagrams/model_fig.png "Schematic diagram of the Model")
 
+## License
+
+[![License](http://img.shields.io/:license-mit-blue.svg?style=flat-square)](https://github.com/S-Choudhuri/Adversarial-Domain-Adaptation-with-Keras/blob/master/LICENSE)
 
 ## Dataset Download 
 
@@ -108,7 +110,3 @@ The following code has drawn inspiration from the following papers:
 - *Li, Yanghao, Naiyan Wang, Jianping Shi, Jiaying Liu, and Xiaodi Hou. "Revisiting batch normalization for practical domain adaptation."* [\[Link\]](https://github.com/S-Choudhuri/Adversarial-Domain-Adaptation-with-Keras/blob/master/Papers/Revisiting_Batch_Normalization_for_Practical_Domain_Adaptation.pdf)
 
 - *Tzeng, Eric, Judy Hoffman, Kate Saenko, and Trevor Darrell. "Adversarial discriminative domain adaptation."* [\[Link\]](https://github.com/S-Choudhuri/Adversarial-Domain-Adaptation-with-Keras/blob/master/Papers/Adversarial_Discriminative_Domain.pdf)
-
-## License
-
-[![License](http://img.shields.io/:license-mit-blue.svg?style=flat-square)](https://github.com/S-Choudhuri/Adversarial-Domain-Adaptation-with-Keras/blob/master/LICENSE)
