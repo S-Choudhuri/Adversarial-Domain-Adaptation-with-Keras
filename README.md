@@ -46,7 +46,7 @@ This code is compatible with the mentioned versions of the following libraries. 
 **Domain-Invariant Feature Extractor:**
 
 - **Model**     : _Resnet50_ (initialized with _'imagenet'_ weights)
-- **Loss**      : _`$\textbf{w} \times classifier loss - \textbf{λ} \times discriminator loss$` (**w** = classifier loss weight [set to 1] and **λ** = discriminator loss weight)_
+- **Loss**      : _$$\textbf{w} \times classifier loss - \textbf{λ} \times discriminator loss$$ (**w** = classifier loss weight [set to 1] and **λ** = discriminator loss weight)_
   - The _**gradient-reversal**_ process is done in a GAN fashion where the domain labels are flipped for the _Source_ and _Target_ (i.e. _Source labels_ changed to 1 and _Target labels_ changed to 0).
 - **Optimizer** : _Adam_
 
