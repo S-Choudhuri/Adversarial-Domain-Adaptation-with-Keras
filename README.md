@@ -34,7 +34,7 @@ The code is tested on the **_Office-31_** dataset.
 
 ## Requirements
 
-This code is compatible with the mentioned versions of the following libraries. However, it might also be compatible with their prior versions.
+This code is compatible with the mentioned versions of the following libraries (might also be compatible with their prior versions).
 
 > pillow 6.0.0\
 > scikit-learn 0.20.2\
